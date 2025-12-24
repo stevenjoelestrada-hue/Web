@@ -19,7 +19,7 @@ const AppLayout = ({ children, sidebar, user, onLogout, searchQuery, onSearch, i
                     onLogout={onLogout}
                     searchQuery={searchQuery}
                     onSearch={onSearch}
-                    onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+                    onOpenMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
                 />
                 <main className="content-area">
                     {children}

@@ -5,7 +5,7 @@ import { FileText, Image, Video, Music, HardDrive, Clock, ChevronRight, Folder, 
 import { useTheme } from '../../hooks/useTheme';
 import { useNotes } from '../../hooks/useNotes';
 import Uploader from '../Uploader';
-import FileList from '../FileList';
+
 
 const Dashboard = ({ files, folders, storageUsage, onNavigate, onPreview, onUpload }) => {
     const { getStats: getNoteStats } = useNotes();
@@ -117,7 +117,6 @@ const Dashboard = ({ files, folders, storageUsage, onNavigate, onPreview, onUplo
         <div className="dashboard-wrapper">
             <div style={{ marginBottom: '2rem', background: 'var(--component-bg)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                 <Uploader onUpload={onUpload} />
-                <FileList />
             </div>
             <div className="dashboard-grid">
                 {/* Card 1: Storage Summary */}
