@@ -20,20 +20,17 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
         security: true
     });
 
-    useEffect(() => {
-        const savedPhoto = localStorage.getItem('userProfilePicture');
-        if (savedPhoto) {
-            setProfile(prev => ({ ...prev, profilePhoto: savedPhoto }));
-            setPreviewUrl(savedPhoto);
-        }
+    const [masterNotif, setMasterNotif] = useState(true);
 
-        const savedProfile = localStorage.getItem('user_profile');
-        if (savedProfile) {
-            const parsed = JSON.parse(savedProfile);
-            setProfile(prev => ({
-                ...prev,
-                name: parsed.name || user?.user_metadata?.full_name || '',
-            }));
+    useEffect(() => {
+        // ... (existing) 
+        const savedPhoto = localStorage.getItem('userProfilePicture');
+        // ... (existing)
+
+        // Load Master Pref
+        const savedMaster = localStorage.getItem('fv_notif_master');
+        if (savedMaster !== null) {
+            setMasterNotif(savedMaster === 'true');
         }
 
         const savedPrefs = localStorage.getItem('fv_notif_prefs');
@@ -70,12 +67,16 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
         setIsSaving(true);
         localStorage.setItem('user_profile', JSON.stringify({ name: profile.name, email: profile.email }));
         localStorage.setItem('userProfilePicture', profile.profilePhoto);
+
+        // Save Notification Prefs
         localStorage.setItem('fv_notif_prefs', JSON.stringify(notifPrefs));
+        localStorage.setItem('fv_notif_master', masterNotif.toString());
 
         // Dispatch custom event to notify other components (like Header)
         window.dispatchEvent(new Event('profileUpdated'));
         window.dispatchEvent(new Event('storage'));
 
+        // Only show success notification if allowed! (Circular dependency, but context handles it)
         showNotification({ type: 'success', message: 'Configuración guardada correctamente' });
 
         setTimeout(() => {
@@ -84,6 +85,7 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
     };
 
     const handleNotifToggle = (key) => {
+        if (!masterNotif) return; // Cannot toggle individuals if master is off
         setNotifPrefs(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
@@ -95,7 +97,9 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
 
     return (
         <div className="settings-page">
+            {/* ... settings-container ... */}
             <div className="settings-container">
+                {/* ... header ... */}
                 <div className="settings-header">
                     <button className="back-btn icon-interactive blue" onClick={() => onSelectCategory('dashboard')}>
                         <ChevronLeft size={20} className="icon-colorful" />
@@ -104,9 +108,10 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
                 </div>
 
                 <div className="settings-card">
+                    {/* ... Profile Section ... */}
                     <h3 className="section-title">Perfil</h3>
-
                     <div className="profile-photo-section">
+                        {/* ... same as before ... */}
                         <div className="profile-photo-wrapper">
                             {previewUrl ? (
                                 <img src={previewUrl} alt="Preview" className="profile-preview-img" />
@@ -138,7 +143,6 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
                             className="settings-input"
                         />
                     </div>
-
                     <div className="form-group">
                         <label>Email:</label>
                         <input
@@ -162,7 +166,24 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
 
                 <div className="settings-card">
                     <h3 className="section-title">Notificaciones</h3>
-                    <div className="notif-settings-list">
+
+                    {/* Master Toggle */}
+                    <div className="notif-setting-item main-toggle">
+                        <div className="notif-setting-info">
+                            <span style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>Activar Notificaciones</span>
+                            <p>Habilitar o deshabilitar todas las alertas</p>
+                        </div>
+                        <label className="switch-label">
+                            <input
+                                type="checkbox"
+                                checked={masterNotif}
+                                onChange={() => setMasterNotif(!masterNotif)}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className={`notif-settings-list ${!masterNotif ? 'disabled' : ''}`}>
                         <div className="notif-setting-item">
                             <div className="notif-setting-info">
                                 <span>Guardado de notas</span>
@@ -173,6 +194,7 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
                                     type="checkbox"
                                     checked={notifPrefs.successNotes}
                                     onChange={() => handleNotifToggle('successNotes')}
+                                    disabled={!masterNotif}
                                 />
                             </label>
                         </div>
@@ -187,6 +209,7 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
                                     type="checkbox"
                                     checked={notifPrefs.storageAlerts}
                                     onChange={() => handleNotifToggle('storageAlerts')}
+                                    disabled={!masterNotif}
                                 />
                             </label>
                         </div>
@@ -201,6 +224,7 @@ const Settings = ({ user, onLogout, onSelectCategory }) => {
                                     type="checkbox"
                                     checked={notifPrefs.activity}
                                     onChange={() => handleNotifToggle('activity')}
+                                    disabled={!masterNotif}
                                 />
                             </label>
                         </div>

@@ -174,7 +174,7 @@ const Header = ({ user, onLogout, searchQuery, onSearch, onOpenMobileMenu }) => 
                         )}
                         <button
                             className="icon-btn icon-interactive red"
-                            onClick={onLogout}
+                            onClick={() => setShowLogoutModal(true)}
                             title="Cerrar Sesión"
                             style={{ marginLeft: '0.5rem' }}
                         >
@@ -187,6 +187,47 @@ const Header = ({ user, onLogout, searchQuery, onSearch, onOpenMobileMenu }) => 
                     </div>
                 )}
             </div>
+
+            {showLogoutModal && (
+                <div className="modal-overlay" onClick={() => setShowLogoutModal(false)} style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+                }}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{
+                        background: 'var(--component-bg)', border: '1px solid var(--border-color)',
+                        borderRadius: '20px', maxWidth: '400px', width: '90%', padding: '24px',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.2)', textAlign: 'center'
+                    }}>
+                        <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', color: 'var(--text-main)' }}>¿Cerrar Sesión?</h3>
+                        <p style={{ margin: '0 0 24px 0', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                            ¿Estás seguro de que quieres cerrar sesión?
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <button
+                                onClick={() => setShowLogoutModal(false)}
+                                style={{
+                                    background: 'transparent', border: '1px solid var(--border-color)',
+                                    color: 'var(--text-secondary)', padding: '10px 20px', borderRadius: '10px',
+                                    cursor: 'pointer', fontWeight: '600'
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={confirmLogout}
+                                style={{
+                                    background: '#ef4444', border: 'none', color: 'white',
+                                    padding: '10px 20px', borderRadius: '10px', cursor: 'pointer',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Sí, Cerrar Sesión
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </header>
     );
 };

@@ -15,6 +15,29 @@ export const NotificationProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
 
     const showNotification = useCallback(({ type = 'info', message, duration = 7000 }) => {
+        // 1. Check Master Switch
+        const masterEnabled = localStorage.getItem('fv_notif_master');
+        if (masterEnabled === 'false') return;
+
+        // 2. Check Preferences
+        const prefsStr = localStorage.getItem('fv_notif_prefs');
+        if (prefsStr) {
+            const prefs = JSON.parse(prefsStr);
+
+            // Map notification content to categories
+            let category = 'activity'; // Default
+            if (type === 'success' || message.toLowerCase().includes('guardad') || message.toLowerCase().includes('saved')) {
+                category = 'successNotes';
+            } else if (type === 'warning' || type === 'error' || message.toLowerCase().includes('espacio') || message.toLowerCase().includes('lleno')) {
+                category = 'storageAlerts';
+            } else if (message.toLowerCase().includes('seguridad') || message.toLowerCase().includes('password')) {
+                category = 'security';
+            }
+
+            // If preference for that category is false, return
+            if (prefs[category] === false) return;
+        }
+
         const id = Date.now();
         const newToast = { id, type, message, duration };
 
@@ -25,6 +48,9 @@ export const NotificationProvider = ({ children }) => {
         });
 
         // Add to persistent notification center (localStorage)
+        // Note: We might want to save to center even if toast is hidden? 
+        // User request implied "Notifications don't appear". Usually means toasts. 
+        // We will skip saving to center too if disabled, to be safe.
         const savedNotifications = JSON.parse(localStorage.getItem('fv_notifications') || '[]');
         const persistentNotif = {
             id,

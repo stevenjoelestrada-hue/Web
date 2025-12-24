@@ -105,7 +105,8 @@ const Calendar = () => {
             <div className={`calendar-layout ${showMonthlyList ? 'with-sidebar' : ''}`}>
                 <div className="calendar-main">
                     <div className="calendar-card theme-transition">
-                        <div className="calendar-header">
+                        {/* Desktop Header */}
+                        <div className="calendar-header calendar-header-desktop">
                             <div className="month-year">
                                 <CalendarIcon size={24} className="header-icon icon-colorful icon-blue" />
                                 <h3>{monthNames[month]} {year}</h3>
@@ -121,6 +122,29 @@ const Calendar = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Mobile Header - Vertical Navigation fixed to Horizontal */}
+                        <div className="calendar-header calendar-header-mobile">
+                            <button onClick={prevMonth} className="mobile-nav-btn icon-interactive blue" title="Mes anterior">
+                                <ChevronLeft size={24} />
+                            </button>
+                            <div className="month-year-mobile">
+                                <CalendarIcon size={20} className="header-icon icon-colorful icon-blue" />
+                                <h3>{monthNames[month]} {year}</h3>
+                            </div>
+                            <button onClick={nextMonth} className="mobile-nav-btn icon-interactive blue" title="Mes siguiente">
+                                <ChevronRight size={24} />
+                            </button>
+                        </div>
+
+                        {/* Notes Toggle Button - Mobile Only */}
+                        <button
+                            className="mobile-notes-toggle icon-interactive purple"
+                            onClick={() => setShowMonthlyList(!showMonthlyList)}
+                        >
+                            <Info size={18} className="icon-colorful icon-purple" />
+                            <span>{showMonthlyList ? 'Ocultar' : 'Ver'} Notas del Mes</span>
+                        </button>
 
                         <div className="calendar-grid">
                             {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(d => (
@@ -144,10 +168,32 @@ const Calendar = () => {
                             })}
                         </div>
                     </div>
+
+                    {/* Mobile Notes Section - Moved inside main wrapper for flow */}
+                    {showMonthlyList && (
+                        <div className="mobile-notes-section theme-transition">
+                            <div className="sidebar-header">
+                                <h4>Notas de {monthNames[month]}</h4>
+                            </div>
+                            <div className="monthly-notes-list">
+                                {monthlyEvents.length === 0 ? (
+                                    <p className="empty-notes">No hay notas para este mes.</p>
+                                ) : (
+                                    monthlyEvents.map(([key, ev]) => (
+                                        <div key={key} className="monthly-note-item" style={{ borderLeftColor: ev.color }}>
+                                            <div className="note-date">{key.split('-')[2]} {monthNames[month].slice(0, 3)}</div>
+                                            <div className="note-msg">{ev.message}</div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
+                {/* Desktop Sidebar - kept for desktop */}
                 {showMonthlyList && (
-                    <div className="calendar-sidebar theme-transition">
+                    <div className="calendar-sidebar theme-transition desktop-only">
                         <div className="sidebar-header">
                             <h4>Notas de {monthNames[month]}</h4>
                             <button onClick={() => setShowMonthlyList(false)} className="close-sidebar"><X size={16} /></button>
@@ -210,6 +256,7 @@ const Calendar = () => {
                 .calendar-page-container {
                     padding: 20px;
                     height: 100%;
+                    overflow-y: auto;
                 }
                 .calendar-layout {
                     display: grid;
@@ -277,9 +324,24 @@ const Calendar = () => {
                     align-items: center;
                     justify-content: center;
                 }
+                /* FIX: Dark mode visibility */
+                :global(.dark) .calendar-nav button {
+                    color: white;
+                    border-color: #475569;
+                }
                 .calendar-nav button:hover {
                     color: var(--primary-color);
                     border-color: var(--primary-color);
+                }
+                /* ... (rest of styles) */
+                @media (max-width: 768px) {
+                    /* FIX: Mobile width */
+                    .calendar-layout {
+                        max-width: 95vw;
+                        margin: 0 auto;
+                        gap: 12px;
+                    }
+                    /* ... */
                 }
                 .calendar-grid {
                     display: grid;
@@ -397,6 +459,10 @@ const Calendar = () => {
                     font-size: 14px;
                     padding: 40px 0;
                 }
+                
+                .mobile-notes-section {
+                    display: none;
+                }
 
                 /* Modal Specific */
                 .modal-overlay {
@@ -506,6 +572,76 @@ const Calendar = () => {
                 }
                 .cancel-btn:hover {
                     background: var(--hover-bg);
+                }
+                @media (max-width: 768px) {
+                    .calendar-header-desktop { display: none; }
+                    /* FIX: Horizontal alignment for buttons */
+                    .calendar-header-mobile { 
+                        display: flex; 
+                        flex-direction: row; 
+                        justify-content: space-between; 
+                        align-items: center; 
+                        gap: 12px; 
+                        padding: 12px; 
+                        background: var(--hover-bg); 
+                        border-radius: 16px; 
+                        margin-bottom: 12px; 
+                    }
+                    .month-year-mobile { display: flex; align-items: center; gap: 8px; justify-content: center; flex: 1; }
+                    .month-year-mobile h3 { margin: 0; font-size: 16px; color: var(--text-main); font-weight: 700; }
+                    .mobile-nav-btn { 
+                        background: var(--component-bg); 
+                        border: 1px solid var(--border-color); 
+                        border-radius: 12px; 
+                        padding: 0;
+                        width: 44px;
+                        height: 44px;
+                        cursor: pointer; 
+                        transition: all 0.2s; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        color: #000000 !important; /* Strong Black for Light Mode */
+                        opacity: 1 !important;
+                    }
+                    /* Dark Mode High Contrast */
+                    :global(.dark) .mobile-nav-btn {
+                        color: #FFFFFF !important; /* Strong White for Dark Mode */
+                        border-color: #64748b !important;
+                    }
+                    .mobile-nav-btn:active { transform: scale(0.95); }
+                    .mobile-notes-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; background: var(--hover-bg); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; cursor: pointer; font-size: 14px; font-weight: 600; }
+                    
+                    /* FIX: Show notes below calendar */
+                    .mobile-notes-section {
+                        display: block;
+                        background: var(--component-bg);
+                        border: 1px solid var(--border-color);
+                        border-radius: 16px;
+                        margin-top: 16px;
+                        max-height: 400px;
+                        overflow-y: auto;
+                    }
+
+                    .calendar-page-container { padding: 12px; }
+                    .calendar-card { padding: 8px; border-radius: 16px; }
+                    .day-cell { min-height: 44px; min-width: 44px; padding: 6px; border-radius: 10px; font-size: 14px; }
+                    .day-num { font-size: 13px; }
+                    .weekday { font-size: 11px; padding: 8px 4px; }
+                    .event-dot { width: 5px; height: 5px; }
+                    .calendar-layout.with-sidebar { grid-template-columns: 1fr; }
+                    
+                    .desktop-only { display: none !important; }
+
+                    .modal-content { width: 95%; max-width: 95%; padding: 20px; border-radius: 16px; }
+                    .modal-header h3 { font-size: 16px; }
+                    .form-group textarea { min-height: 100px; font-size: 16px; padding: 14px; }
+                    .color-picker-input { height: 52px; border-radius: 12px; }
+                    .modal-footer { flex-direction: column; gap: 10px; }
+                    .save-btn, .cancel-btn { width: 100%; padding: 14px 24px; font-size: 16px; min-height: 48px; border-radius: 12px; }
+                }
+                @media (min-width: 769px) {
+                    .calendar-header-mobile, .mobile-notes-toggle { display: none; }
                 }
             `}</style>
         </div>

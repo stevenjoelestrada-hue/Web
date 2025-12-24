@@ -15,11 +15,15 @@ const Tasks = () => {
     const addTask = (e) => {
         e.preventDefault();
         if (!input.trim()) return;
+
+        const now = new Date();
+        const formattedDate = `${now.getDate()}/${now.getMonth() + 1} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
         const newTask = {
             id: Date.now(),
             text: input.trim(),
             completed: false,
-            createdAt: new Date().toISOString()
+            createdAt: formattedDate
         };
         setTasks([newTask, ...tasks]);
         setInput('');
@@ -39,7 +43,7 @@ const Tasks = () => {
                 <div className="tasks-header">
                     <h2>Mis Tareas</h2>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span className="tasks-count">{tasks.filter(t => !t.completed).length} pendientes</span>
+                        <span className="tasks-count">{tasks.filter(t => t.completed === false).length} pendientes</span>
                         <CheckCircle2 size={24} className="icon-colorful icon-green" />
                     </div>
                 </div>
@@ -60,7 +64,10 @@ const Tasks = () => {
                             <button className="toggle-btn icon-interactive green" onClick={() => toggleTask(task.id)}>
                                 {task.completed ? <CheckCircle2 size={20} className="icon-colorful icon-green" /> : <Circle size={20} className="icon-colorful" />}
                             </button>
-                            <span className="task-text">{task.text}</span>
+                            <div className="task-content">
+                                <span className="task-text">{task.text}</span>
+                                {task.createdAt && <span className="task-date">{task.createdAt}</span>}
+                            </div>
                             <button className="delete-btn icon-interactive red" onClick={() => deleteTask(task.id)}>
                                 <Trash2 size={18} className="icon-colorful icon-red" />
                             </button>
@@ -80,8 +87,10 @@ const Tasks = () => {
                     display: flex;
                     justify-content: center;
                     padding: 20px;
-                    max-width: 600px;
+                    width: 100%;
+                    max-width: 500px;
                     margin: 0 auto;
+                    height: 100%;
                 }
                 .tasks-card {
                     background: var(--component-bg);
@@ -90,27 +99,36 @@ const Tasks = () => {
                     width: 100%;
                     overflow: hidden;
                     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 500px;
                 }
                 .tasks-header {
-                    padding: 24px;
+                    padding: 20px 24px;
                     background: var(--bg-color);
                     border-bottom: 1px solid var(--border-color);
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                 }
+                .tasks-header h2 {
+                    margin: 0;
+                    font-size: 20px;
+                    color: var(--text-main);
+                }
                 .tasks-count {
-                    font-size: 13px;
+                    font-size: 12px;
                     color: var(--primary-color);
                     font-weight: 600;
                     background: var(--hover-bg);
-                    padding: 4px 12px;
+                    padding: 4px 10px;
                     border-radius: 20px;
                 }
                 .task-form {
                     padding: 20px;
                     display: flex;
                     gap: 12px;
+                    border-bottom: 1px solid var(--border-color);
                 }
                 .task-form input {
                     flex: 1;
@@ -120,6 +138,10 @@ const Tasks = () => {
                     padding: 12px 16px;
                     color: var(--text-main);
                     outline: none;
+                    transition: border-color 0.2s;
+                }
+                .task-form input:focus {
+                    border-color: var(--primary-color);
                 }
                 .task-form button {
                     background: var(--primary-color);
@@ -133,11 +155,19 @@ const Tasks = () => {
                     cursor: pointer;
                     transition: transform 0.2s;
                 }
+                .task-form button:hover {
+                    background: var(--primary-hover);
+                }
+                .task-form button:active {
+                    transform: scale(0.95);
+                }
                 .tasks-list {
-                    padding: 0 20px 20px;
+                    padding: 20px;
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
+                    gap: 10px;
+                    overflow-y: auto;
+                    flex: 1;
                 }
                 .task-item {
                     display: flex;
@@ -152,11 +182,22 @@ const Tasks = () => {
                 .task-item:hover {
                     border-color: var(--border-color);
                     transform: translateX(4px);
+                    background: var(--hover-bg);
+                }
+                .task-content {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
                 }
                 .task-text {
-                    flex: 1;
                     font-size: 15px;
                     color: var(--text-main);
+                    font-weight: 500;
+                }
+                .task-date {
+                    font-size: 11px;
+                    color: var(--text-secondary);
                 }
                 .task-item.completed .task-text {
                     text-decoration: line-through;
@@ -168,9 +209,13 @@ const Tasks = () => {
                     cursor: pointer;
                     color: var(--text-secondary);
                     display: flex;
-                    padding: 4px;
+                    padding: 6px;
+                    border-radius: 8px;
+                    transition: background 0.2s;
                 }
+                .toggle-btn:hover { background: var(--hover-bg); }
                 .delete-btn:hover {
+                    background: #fef2f2;
                     color: var(--error-color);
                 }
                 .empty-tasks {
@@ -180,6 +225,7 @@ const Tasks = () => {
                 }
                 .empty-tasks p {
                     margin-top: 12px;
+                    font-size: 14px;
                 }
             `}</style>
         </div>

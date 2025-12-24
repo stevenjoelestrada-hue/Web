@@ -64,42 +64,141 @@ const FileCard = ({ file, folders, onDelete, onRestore, onPermanentDelete, onRen
                 <p className="file-meta">{file.size} • {file.date}</p>
             </div>
 
+            {/* Context Menu Trigger */}
             <div className="file-actions" onClick={e => e.stopPropagation()}>
-                {isTrash ? (
+                <button
+                    className={`menu-trigger ${showMenu ? 'active' : ''}`}
+                    onClick={() => setShowMenu(!showMenu)}
+                >
+                    <MoreVertical size={18} />
+                </button>
+
+                {showMenu && (
                     <>
-                        <button className="action-btn icon-interactive green restore-btn" title="Restaurar" onClick={() => onRestore(file.id)}>
-                            <RotateCcw size={18} />
-                        </button>
-                        <button className="action-btn icon-interactive red delete-btn" title="Eliminar Permanentemente" onClick={() => onPermanentDelete(file.id)}>
-                            <XCircle size={18} />
-                        </button>
-                    </>
-                ) : (
-                    !isRenaming && (
-                        <div className="active-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                            <a
-                                href={fileSrc}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="action-btn icon-interactive blue"
-                                title="Abrir en nueva pestaña"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <Link size={18} />
-                            </a>
-
-                            <button className="action-btn icon-interactive yellow" title="Renombrar" onClick={() => setIsRenaming(true)}>
-                                <Edit2 size={18} />
-                            </button>
-
-                            <button className="action-btn icon-interactive red" title="Eliminar" onClick={() => onDelete(file.id)}>
-                                <Trash2 size={18} />
-                            </button>
+                        <div className="menu-overlay" onClick={() => setShowMenu(false)} />
+                        <div className="context-menu theme-transition">
+                            {isTrash ? (
+                                <>
+                                    <button onClick={() => { onRestore(file.id); setShowMenu(false); }} className="menu-item green">
+                                        <RotateCcw size={16} />
+                                        <span>Restaurar</span>
+                                    </button>
+                                    <button onClick={() => { onPermanentDelete(file.id); setShowMenu(false); }} className="menu-item red">
+                                        <XCircle size={16} />
+                                        <span>Eliminar Definitivamente</span>
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <a
+                                        href={fileSrc}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="menu-item blue"
+                                        onClick={() => setShowMenu(false)}
+                                    >
+                                        <Link size={16} />
+                                        <span>Abrir</span>
+                                    </a>
+                                    <button onClick={() => { setIsRenaming(true); setShowMenu(false); }} className="menu-item yellow">
+                                        <Edit2 size={16} />
+                                        <span>Renombrar</span>
+                                    </button>
+                                    <div className="menu-divider"></div>
+                                    <button onClick={() => { onDelete(file.id); setShowMenu(false); }} className="menu-item red">
+                                        <Trash2 size={16} />
+                                        <span>Eliminar</span>
+                                    </button>
+                                </>
+                            )}
                         </div>
-                    )
+                    </>
                 )}
             </div>
-        </div >
+
+            <style>{`
+                .menu-trigger {
+                    background: transparent;
+                    border: none;
+                    padding: 8px;
+                    border-radius: 50%;
+                    color: var(--text-secondary);
+                    cursor: pointer;
+                    display: flex !important; /* Always visible */
+                    align-items: center;
+                    justify-content: center;
+                    transition: background 0.2s;
+                    opacity: 1 !important; /* Always visible */
+                }
+                .menu-trigger:hover, .menu-trigger.active {
+                    background: var(--hover-bg);
+                    color: var(--text-main);
+                }
+                @media (max-width: 768px) {
+                     .menu-trigger {
+                        width: 44px; /* Touch target size */
+                        height: 44px;
+                        min-width: 44px;
+                        min-height: 44px;
+                        background: var(--hover-bg); /* Always show background on mobile for visibility */
+                        color: var(--text-main);
+                     }
+                }
+                .menu-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    z-index: 100;
+                    cursor: default;
+                }
+                .context-menu {
+                    position: absolute;
+                    top: 40px;
+                    right: 0;
+                    background: var(--component-bg);
+                    border: 1px solid var(--border-color);
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    padding: 6px;
+                    min-width: 180px;
+                    z-index: 101;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .menu-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 10px 12px;
+                    border: none;
+                    background: transparent;
+                    color: var(--text-main);
+                    font-size: 13px;
+                    font-weight: 500;
+                    text-align: left;
+                    cursor: pointer;
+                    border-radius: 8px;
+                    text-decoration: none;
+                    transition: background 0.2s;
+                }
+                .menu-item:hover {
+                    background: var(--hover-bg);
+                }
+                .menu-item.blue:hover { color: var(--primary-color); background: #eff6ff; }
+                .menu-item.green:hover { color: var(--success-color); background: #ecfdf5; }
+                .menu-item.yellow:hover { color: var(--warning-color); background: #fffbeb; }
+                .menu-item.red:hover { color: var(--error-color); background: #fef2f2; }
+                
+                .menu-divider {
+                    height: 1px;
+                    background: var(--border-color);
+                    margin: 4px 0;
+                }
+            `}</style>
+        </div>
     );
 };
 
