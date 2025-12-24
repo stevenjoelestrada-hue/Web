@@ -48,6 +48,9 @@ const Dashboard = ({ files, folders, storageUsage, onNavigate, onPreview, onUplo
     }, [files, folders]);
 
 
+
+    const { theme } = useTheme();
+
     const categoryData = useMemo(() => {
         const counts = {
             documents: 0,
@@ -68,14 +71,29 @@ const Dashboard = ({ files, folders, storageUsage, onNavigate, onPreview, onUplo
             else counts.others++;
         });
 
+        // Colors based on theme
+        const colors = theme === 'dark' ? {
+            documents: '#ef4444', // Red (already bright)
+            images: '#a78bfa',     // Bright Purple
+            videos: '#60a5fa',     // Bright Blue
+            music: '#f472b6',      // Bright Pink
+            others: '#94a3b8'      // Bright Gray
+        } : {
+            documents: '#ef4444', // Red
+            images: '#8b5cf6',    // Purple
+            videos: '#3b82f6',    // Blue
+            music: '#ec4899',     // Pink
+            others: '#64748b'     // Gray
+        };
+
         return [
-            { name: 'Documentos', value: counts.documents, color: '#ef4444', key: 'documents' }, // Red
-            { name: 'Imágenes', value: counts.images, color: '#8b5cf6', key: 'images' },   // Purple
-            { name: 'Videos', value: counts.videos, color: '#3b82f6', key: 'videos' },     // Blue
-            { name: 'Música', value: counts.music, color: '#ec4899', key: 'music' },       // Pink
-            { name: 'Otros', value: counts.others, color: '#64748b', key: 'others' }       // Gray
+            { name: 'Documentos', value: counts.documents, color: colors.documents, key: 'documents' },
+            { name: 'Imágenes', value: counts.images, color: colors.images, key: 'images' },
+            { name: 'Videos', value: counts.videos, color: colors.videos, key: 'videos' },
+            { name: 'Música', value: counts.music, color: colors.music, key: 'music' },
+            { name: 'Otros', value: counts.others, color: colors.others, key: 'others' }
         ].filter(item => item.value > 0);
-    }, [files]);
+    }, [files, theme]);
 
     // Top 5 Largest Files
     const largestFiles = useMemo(() => {
