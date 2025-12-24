@@ -13,6 +13,12 @@ const Header = ({ user, onLogout, searchQuery, onSearch, onOpenMobileMenu }) => 
     const [notifications, setNotifications] = useState([]);
     const [hasUnread, setHasUnread] = useState(false);
     const [profilePicture, setProfilePicture] = useState(localStorage.getItem('userProfilePicture') || '');
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    const confirmLogout = () => {
+        onLogout();
+        setShowLogoutModal(false);
+    };
 
     useEffect(() => {
         const handleStorageChange = () => {
